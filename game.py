@@ -1,8 +1,11 @@
 import random
-word_bank = ['unique','tiktok','apple','sigma','photo','chair','python']
+word_bank = ['apple', 'tiger', 'cloud', 'music', 'light', 'dream', 'river', 
+    'smile', 'chair', 'book', 'planet', 'silver', 'mirror', 'garden', 
+    'castle', 'pencil', 'ocean', 'forest', 'camera', 'cookie', 'python', 
+    'github', 'binary', 'server', 'router', 'packet', 'logic', 'matrix']
 word = random.choice(word_bank)
 guessedWord = ['_'] * len(word)
-attempts = 5
+attempts = 10
 while attempts > 0:
     print('\nCurrent word:' + ' '.join(guessedWord))
     guess = input('Guess a letter: ').lower()
