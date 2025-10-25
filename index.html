@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            border: 4px solid #2563EB;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1E40AF;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #2563EB;
+            font-size: 1.1rem;
+        }
+
+        .word-display {
+            background: #EFF6FF;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 2px solid #BFDBFE;
+        }
+
+        .letters-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .letter-box {
+            width: 50px;
+            height: 60px;
+            background: white;
+            border: 3px solid #60A5FA;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1E40AF;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .attempts {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1E40AF;
+        }
+
+        .attempts-count {
+            color: #1E40AF;
+        }
+
+        .attempts-count.low {
+            color: #DC2626;
+        }
+
+        .new-game-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #2563EB;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s;
+        }
+
+        .new-game-btn:hover {
+            background: #1D4ED8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .message {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .message.success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 2px solid #34D399;
+        }
+
+        .message.error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 2px solid #F87171;
+        }
+
+        .message.info {
+            background: #DBEAFE;
+            color: #1E40AF;
+            border: 2px solid #60A5FA;
+        }
+
+        .message.warning {
+            background: #FED7AA;
+            color: #92400E;
+            border: 2px solid #FB923C;
+        }
+
+        .keyboard-section h3 {
+            text-align: center;
+            color: #1E40AF;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .key {
+            height: 50px;
+            background: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: all 0.2s;
+        }
+
+        .key:hover:not(:disabled) {
+            background: #1D4ED8;
+            transform: translateY(-2px);
+        }
+
+        .key:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .key.correct {
+            background: #10B981;
+            cursor: not-allowed;
+        }
+
+        .key.incorrect {
+            background: #F87171;
+            cursor: not-allowed;
+        }
+
+        .key:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .key.disabled-game {
+            background: #D1D5DB;
+            color: #6B7280;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            color: #2563EB;
+            font-size: 0.95rem;
+        }
+
+        .refresh-icon {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Word Guessing Game</h1>
+            <p>Guess the word letter by letter!</p>
+        </div>
+
+        <div class="word-display">
+            <div class="letters-container" id="wordDisplay"></div>
+            <div class="game-info">
+                <div class="attempts">
+                    Attempts: <span id="attemptsCount" class="attempts-count">10</span>
+                </div>
+                <button class="new-game-btn" onclick="initializeGame()">
+                    <svg class="refresh-icon" viewBox="0 0 24 24">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    New Game
+                </button>
+            </div>
+        </div>
+
+        <div id="messageBox" class="message" style="display: none;"></div>
+
+        <div class="keyboard-section">
+            <h3>Select a Letter</h3>
+            <div class="keyboard" id="keyboard"></div>
+        </div>
+
+        <div class="footer">
+            <p>Guess letters to reveal the hidden word. You have 10 attempts!</p>
+        </div>
+    </div>
+
+    <script>
+        const wordBank = [
+            'apple', 'tiger', 'cloud', 'music', 'light', 'dream', 'river', 
+            'smile', 'chair', 'book', 'planet', 'silver', 'mirror', 'garden', 
+            'castle', 'pencil', 'ocean', 'forest', 'camera', 'cookie', 'python', 
+            'github', 'binary', 'server', 'router', 'packet', 'logic', 'matrix'
+        ];
+
+        let word = '';
+        let guessedWord = [];
+        let attempts = 10;
+        let guessedLetters = new Set();
+        let gameOver = false;
+
+        function initializeGame() {
+            word = wordBank[Math.floor(Math.random() * wordBank.length)];
+            guessedWord = Array(word.length).fill('_');
+            attempts = 10;
+            guessedLetters = new Set();
+            gameOver = false;
+
+            updateDisplay();
+            createKeyboard();
+            hideMessage();
+        }
+
+        function updateDisplay() {
+            const wordDisplay = document.getElementById('wordDisplay');
+            wordDisplay.innerHTML = '';
+            guessedWord.forEach(letter => {
+                const letterBox = document.createElement('div');
+                letterBox.className = 'letter-box';
+                letterBox.textContent = letter;
+                wordDisplay.appendChild(letterBox);
+            });
+
+            const attemptsCount = document.getElementById('attemptsCount');
+            attemptsCount.textContent = attempts;
+            attemptsCount.className = attempts <= 3 ? 'attempts-count low' : 'attempts-count';
+        }
+
+        function createKeyboard() {
+            const keyboard = document.getElementById('keyboard');
+            keyboard.innerHTML = '';
+            const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+            alphabet.forEach(letter => {
+                const key = document.createElement('button');
+                key.className = 'key';
+                key.textContent = letter.toUpperCase();
+                key.onclick = () => handleGuess(letter);
+                key.id = `key-${letter}`;
+                keyboard.appendChild(key);
+            });
+        }
+
+        function handleGuess(letter) {
+            if (gameOver || guessedLetters.has(letter)) return;
+
+            guessedLetters.add(letter);
+            const keyElement = document.getElementById(`key-${letter}`);
+
+            if (word.includes(letter)) {
+                for (let i = 0; i < word.length; i++) {
+                    if (word[i] === letter) {
+                        guessedWord[i] = letter;
+                    }
+                }
+                keyElement.className = 'key correct';
+                keyElement.disabled = true;
+                showMessage('Great guess!', 'info');
+
+                if (!guessedWord.includes('_')) {
+                    gameOver = true;
+                    showMessage(`Congratulations!! You guessed the word: ${word}`, 'success');
+                    disableAllKeys();
+                }
+            } else {
+                attempts--;
+                keyElement.className = 'key incorrect';
+                keyElement.disabled = true;
+                showMessage(`Wrong guess! Attempts left: ${attempts}`, 'warning');
+
+                if (attempts === 0) {
+                    gameOver = true;
+                    showMessage(`You've run out of attempts! The word was: ${word}`, 'error');
+                    disableAllKeys();
+                }
+            }
+
+            updateDisplay();
+        }
+
+        function showMessage(text, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = text;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        function hideMessage() {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'none';
+        }
+
+        function disableAllKeys() {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(key => {
+                if (!key.disabled) {
+                    key.className = 'key disabled-game';
+                    key.disabled = true;
+                }
+            });
+        }
+
+        // Initialize game on load
+        initializeGame();
+    </script>
+</body>
+</html>
